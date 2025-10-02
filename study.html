@@ -1,0 +1,260 @@
+study-site/
+  └ index.html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>勉強サイト</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    button { margin: 5px; }
+    #question { margin-top: 20px; font-weight: bold; }
+    #result { margin-top: 10px; color: blue; white-space: pre-line; }
+    input { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>勉強サイト</h1>
+
+  <h2>ジャンル選択</h2>
+  <!-- 数学 -->
+  <button id="btnMojisiki">文字式の利用</button>
+  <button id="btnRenritu">連立方程式</button>
+  <button id="btnLinear">一次関数</button>
+  <button id="btnLinearUse">一次関数の利用</button>
+  <button id="btnExp">展開</button>
+  <button id="btnFact">因数分解</button>
+  <button id="btnSqrt">平方根</button>
+  <button id="btnQuad">二次方程式</button>
+  <button id="btnAll">全ジャンルランダム</button>
+  
+  <!-- 社会 -->
+  <button id="btnHistory">社会（歴史）</button>
+  <button id="btnGeography">社会（地理）</button>
+  <button id="btnSocietyAll">社会ランダム</button>
+  
+  <button id="btnReview">間違えた問題を復習</button>
+
+  <h2>問題</h2>
+  <div id="question">ここに問題が表示されます</div>
+
+  <input id="answer" type="text" placeholder="答えを入力">
+  <button id="check">答え</button>
+
+  <div id="result"></div>
+
+  <script>
+    function randomInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+    // --------------------------
+    // 数学問題
+    const problems_mojisiki = [];
+    for(let i=0;i<100;i++){
+      let a=randomInt(1,9),b=randomInt(1,9),c=randomInt(-10,9);
+      let q=`${a}x + ${b}x ${c>=0?"+ ":"- "}${Math.abs(c)}`;
+      let atext=`${a+b}x ${c>=0?"+ ":"- "}${Math.abs(c)}`;
+      let exp=`${a}x + ${b}x = ${a+b}x だから、最終的に ${atext}`;
+      problems_mojisiki.push({q:q,a:atext,exp:exp});
+    }
+
+    const problems_renritu=[];
+    for(let i=0;i<100;i++){
+      let x=randomInt(1,10),y=randomInt(1,10);
+      let a=randomInt(1,5),b=randomInt(1,5),c=a*x+b*y;
+      let d=randomInt(1,5),e=randomInt(1,5),f=d*x+e*y;
+      let q=`${a}x + ${b}y = ${c},  ${d}x + ${e}y = ${f}`;
+      let atext=`x = ${x}, y = ${y}`;
+      let exp=`代入して確認すると両方の式が成り立つ → ${atext}`;
+      problems_renritu.push({q:q,a:atext,exp:exp});
+    }
+
+    const problems_linear=[];
+    for(let i=0;i<100;i++){
+      let a=randomInt(1,5),b=randomInt(-5,5),x=randomInt(0,10);
+      let y=a*x+b;
+      let q=`y = ${a}x ${b>=0?"+ ":"- "+Math.abs(b)} のとき x = ${x} の y を求めよ`;
+      let atext=`${y}`;
+      let exp=`y = ${a}×${x} ${b>=0?"+ ":"- "+Math.abs(b)} = ${y}`;
+      problems_linear.push({q:q,a:atext,exp:exp});
+    }
+
+    const problems_linearUse=[];
+    for(let i=0;i<100;i++){
+      let a=randomInt(1,5),b=randomInt(-5,5),x=randomInt(0,10);
+      let y=a*x+b;
+      let q=`ある一次関数 y=${a}x ${b>=0?"+ ":"- "+Math.abs(b)} のとき、x=${x} の y は？`;
+      let atext=`${y}`;
+      let exp=`y=${a}×${x} ${b>=0?"+ ":"- "+Math.abs(b)} = ${y}`;
+      problems_linearUse.push({q:q,a:atext,exp:exp});
+    }
+
+    const problems_exp=[];
+    for(let i=0;i<100;i++){
+      let a=randomInt(1,5),b=randomInt(1,5),c=randomInt(1,5),d=randomInt(1,5);
+      let q=`(${a}x + ${b})(${c}x + ${d}) を展開せよ`;
+      let A=a*c, B=a*d+b*c, C=b*d;
+      let atext=`${A}x^2 ${B>=0?"+ ":"- "+Math.abs(B)}x ${C>=0?"+ ":"- "+Math.abs(C)}`;
+      let exp=`公式 (ax+b)(cx+d)=acx^2+(ad+bc)x+bd より ${atext}`;
+      problems_exp.push({q:q,a:atext,exp:exp});
+    }
+
+    const problems_fact=[];
+    for(let i=0;i<100;i++){
+      let a=randomInt(1,5),b=randomInt(1,5);
+      let q=`${a*b}x + ${a*b*2} を因数分解せよ`;
+      let atext=`${a}(${b}x + ${b*2})`;
+      let exp=`公倍数をくくり出すと ${atext}`;
+      problems_fact.push({q:q,a:atext,exp:exp});
+    }
+
+    const problems_sqrt=[];
+    for(let i=0;i<100;i++){
+      let n=randomInt(1,10);
+      let q=`√${n*n} を簡単にせよ`;
+      let atext=`${n}`;
+      let exp=`√(${n}^2) = ${n}`;
+      problems_sqrt.push({q:q,a:atext,exp:exp});
+    }
+
+    const problems_quad=[];
+    for(let i=0;i<100;i++){
+      let x=randomInt(1,10);
+      let a=randomInt(1,5),b=randomInt(1,5);
+      let c=a*x*x+b*x;
+      let q=`${a}x^2 + ${b}x - ${c} = 0 の解を求めよ`;
+      let atext=`x = ${x}`;
+      let exp=`代入して確認すると x=${x} が解`;
+      problems_quad.push({q:q,a:atext,exp:exp});
+    }
+
+    // --------------------------
+    // 社会問題
+    const problems_history=[
+  {q:"聖徳太子が制定した政治の基本方針を何というか。", a:"十七条の憲法"},
+  {q:"大化の改新を行った天皇は誰か。", a:"孝徳天皇"},
+  {q:"奈良時代に都がおかれた場所はどこか。", a:"平城京"},
+  {q:"平安京に都が移されたのは何年か。", a:"794年"},
+  {q:"平安時代に成立した最古の勅撰和歌集は何か。", a:"古今和歌集"},
+  {q:"源頼朝が鎌倉幕府を開いた年はいつか。", a:"1192年"},
+  {q:"鎌倉幕府で初代将軍となった人物は誰か。", a:"源頼朝"},
+  {q:"承久の乱で敗れた後、幕府は何制度を強化したか。", a:"守護・地頭制度"},
+  {q:"元寇で日本に攻めてきた国はどこか。", a:"モンゴル帝国"},
+  {q:"室町幕府を開いた将軍は誰か。", a:"足利尊氏"},
+  {q:"応仁の乱は何年に起きたか。", a:"1467年"},
+  {q:"戦国時代に「天下統一」を果たした人物は誰か。", a:"豊臣秀吉"},
+  {q:"関ヶ原の戦いで勝利した人物は誰か。", a:"徳川家康"},
+  {q:"江戸幕府を開いたのは誰か。", a:"徳川家康"},
+  {q:"鎖国政策を開始した江戸幕府の将軍は誰か。", a:"徳川家光"},
+  {q:"黒船来航は何年か。", a:"1853年"},
+  {q:"明治維新は何年から始まったか。", a:"1868年"},
+  {q:"大政奉還を行った人物は誰か。", a:"徳川慶喜"},
+  {q:"明治時代の殖産興業政策を推進した人物は誰か。", a:"岩倉具視"},
+  {q:"日清戦争が起きた年はいつか。", a:"1894年"},
+  {q:"日露戦争が起きた年はいつか。", a:"1904年"},
+  {q:"第二次世界大戦中の日本の首相は誰か。", a:"東条英機"},
+  {q:"日本がアメリカに原子爆弾を投下された都市はどこか。", a:"広島・長崎"},
+  {q:"日本国憲法が施行された年はいつか。", a:"1947年"},
+  {q:"明治時代に地租改正を行った人物は誰か。", a:"大蔵省（松方正義など）"},
+  {q:"平安時代の藤原氏の摂政・関白政治を何というか。", a:"摂関政治"},
+  {q:"鎌倉幕府の武士の支配体制を何というか。", a:"御家人制度"},
+  {q:"江戸幕府で参勤交代を義務付けた理由は何か。", a:"大名の経済的・政治的抑制"},
+  {q:"太平洋戦争が始まった年はいつか。", a:"1941年"},
+  {q:"平安時代の末期、院政を始めた天皇は誰か。", a:"白河天皇"},
+  {q:"源平合戦で平家が滅亡した戦いは何か。", a:"壇ノ浦の戦い"},
+  {q:"鎌倉幕府の執権制度を初めて確立した人物は誰か。", a:"北条時政"},
+  {q:"室町幕府で守護大名に任命された制度は何か。", a:"守護職"},
+  {q:"戦国時代の三英傑とは誰か。", a:"織田信長・豊臣秀吉・徳川家康"},
+  {q:"明治時代の廃藩置県は何年か。", a:"1871年"},
+  {q:"日露戦争後に締結された講和条約は何か。", a:"ポーツマス条約"},
+  {q:"昭和時代に日本が満州事変を起こした年はいつか。", a:"1931年"},
+  {q:"江戸時代の四民平等の身分制度は何か。", a:"士農工商"},
+  {q:"平安時代の文化で、『源氏物語』を書いた人物は誰か。", a:"紫式部"},
+  {q:"奈良時代の文化で、『古事記』を編纂したのは誰か。", a:"太安万侶"},
+  {q:"戦国時代の鉄砲伝来は何年か。", a:"1543年"},
+  {q:"鎌倉時代に成立した武士のための法律は何か。", a:"御成敗式目"},
+  {q:"江戸時代に五街道の整備を行った人物は誰か。", a:"徳川家康"},
+  {q:"元寇の時、神風が吹いたとされるが、元の侵攻は何年か。", a:"1274年・1281年"},
+  {q:"江戸時代に幕府直轄地を何と呼ぶか。", a:"天領"},
+  {q:"明治時代に廃刀令を出した理由は何か。", a:"武士の特権を廃止し近代化"},
+  {q:"平安時代の貴族文化で、和歌や日記を重んじた文化は何か。", a:"国風文化"},
+    ];
+
+    const problems_geography=[
+      {q:"日本の最北端の島は？", a:"宗谷岬", exp:"北海道の最北端にある岬"},
+      {q:"富士山の標高は？", a:"3776", exp:"日本一高い山の高さは3776m"},
+      {q:"本州最大の湖は？", a:"琵琶湖", exp:"滋賀県にある日本最大の湖"}
+    ];
+
+    const problems_society_all=[...problems_history,...problems_geography];
+
+    // --------------------------
+    const problems_all = [
+      ...problems_mojisiki,
+      ...problems_renritu,
+      ...problems_linear,
+      ...problems_linearUse,
+      ...problems_exp,
+      ...problems_fact,
+      ...problems_sqrt,
+      ...problems_quad,
+      ...problems_history,
+      ...problems_geography
+    ];
+
+    let currentProblem=null;
+    let currentSet=[];
+    let wrongProblems=[];
+
+    function showProblem(){
+      if(currentSet.length===0){document.getElementById("question").textContent="ジャンルを選んでください";return;}
+      const idx=randomInt(0,currentSet.length-1);
+      currentProblem=currentSet[idx];
+      document.getElementById("question").textContent=currentProblem.q;
+      document.getElementById("result").textContent="";
+      document.getElementById("answer").value="";
+    }
+
+    // --------------------------
+    // ボタンイベント
+    document.getElementById("btnMojisiki").addEventListener("click",()=>{currentSet=problems_mojisiki; showProblem();});
+    document.getElementById("btnRenritu").addEventListener("click",()=>{currentSet=problems_renritu; showProblem();});
+    document.getElementById("btnLinear").addEventListener("click",()=>{currentSet=problems_linear; showProblem();});
+    document.getElementById("btnLinearUse").addEventListener("click",()=>{currentSet=problems_linearUse; showProblem();});
+    document.getElementById("btnExp").addEventListener("click",()=>{currentSet=problems_exp; showProblem();});
+    document.getElementById("btnFact").addEventListener("click",()=>{currentSet=problems_fact; showProblem();});
+    document.getElementById("btnSqrt").addEventListener("click",()=>{currentSet=problems_sqrt; showProblem();});
+    document.getElementById("btnQuad").addEventListener("click",()=>{currentSet=problems_quad; showProblem();});
+    document.getElementById("btnAll").addEventListener("click",()=>{currentSet=problems_all; showProblem();});
+
+    document.getElementById("btnHistory").addEventListener("click",()=>{currentSet=problems_history; showProblem();});
+    document.getElementById("btnGeography").addEventListener("click",()=>{currentSet=problems_geography; showProblem();});
+    document.getElementById("btnSocietyAll").addEventListener("click",()=>{currentSet=problems_society_all; showProblem();});
+
+    // 間違えた問題復習
+    document.getElementById("btnReview").addEventListener("click",()=>{
+      if(wrongProblems.length===0){
+        document.getElementById("question").textContent="間違えた問題はありません！";
+        document.getElementById("result").textContent="";
+        currentSet=[];
+      }else{
+        currentSet=wrongProblems;
+        showProblem();
+      }
+    });
+
+    // 答え合わせ
+    document.getElementById("check").addEventListener("click",()=>{
+      if(!currentProblem){document.getElementById("result").textContent="先にジャンルを選んでください！";return;}
+      let userAns=document.getElementById("answer").value.replace(/\s+/g,"");
+      let correctAns=currentProblem.a.replace(/\s+/g,"");
+      if(userAns===correctAns){
+        document.getElementById("result").innerHTML=`✅ 正解！🎉\n解説: ${currentProblem.exp}`;
+        wrongProblems = wrongProblems.filter(p => p !== currentProblem);
+      }else{
+        document.getElementById("result").innerHTML=`❌ 不正解…😢\n正解は ${currentProblem.a}\n解説: ${currentProblem.exp}`;
+        if(!wrongProblems.includes(currentProblem)) wrongProblems.push(currentProblem);
+      }
+    });
+  </script>
+</body>
+</html>
